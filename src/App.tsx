@@ -217,7 +217,7 @@ export default function App() {
             .pdf-page .col-span-4 { width: 33.33% !important; flex: 0 0 33.33% !important; }
             .pdf-page .col-span-2 { width: 16.66% !important; flex: 0 0 16.66% !important; }
             .pdf-page .col-span-1 { width: 8.33% !important; flex: 0 0 8.33% !important; }
-            .pdf-page .page-2-anchor { border-top: 1px solid #eee !important; margin-top: 40mm !important; padding-top: 20mm !important; }
+            .pdf-page .page-2-anchor { border-top: 1px solid #eee !important; margin-top: 20mm !important; padding-top: 10mm !important; }
             .pdf-page .bg-black { background-color: black !important; }
             .pdf-page .relative { position: relative !important; }
             .pdf-page .absolute { position: absolute !important; }
@@ -448,12 +448,12 @@ export default function App() {
                 }}
               >
                 {/* Header Logos */}
-                <div className="flex justify-between items-start mb-8">
+                <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2 min-w-[100px]">
                     <img 
                       src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SENAI_Logo.svg/512px-SENAI_Logo.svg.png" 
                       alt="SENAI" 
-                      className="h-10 object-contain"
+                      className="h-8 object-contain"
                       referrerPolicy="no-referrer"
                       crossOrigin="anonymous"
                       onError={(e) => {
@@ -462,7 +462,7 @@ export default function App() {
                         if (parent) {
                           const span = document.createElement('span');
                           span.innerText = 'SENAI';
-                          span.className = 'font-bold text-blue-700 text-xl';
+                          span.className = 'font-bold text-blue-700 text-lg';
                           parent.appendChild(span);
                         }
                       }}
@@ -474,7 +474,7 @@ export default function App() {
                         <img 
                           src="https://www.agenciabrasilia.df.gov.br/wp-content/uploads/2019/01/logo_gdf.png" 
                           alt="GDF" 
-                          className="h-8 object-contain"
+                          className="h-6 object-contain"
                           referrerPolicy="no-referrer"
                           crossOrigin="anonymous"
                           onError={(e) => {
@@ -483,29 +483,29 @@ export default function App() {
                             if (parent) {
                               const span = document.createElement('span');
                               span.innerText = 'GDF';
-                              span.className = 'font-bold text-blue-900 text-lg';
+                              span.className = 'font-bold text-blue-900 text-base';
                               parent.appendChild(span);
                             }
                           }}
                         />
-                        <div className="h-8 w-px bg-zinc-300 mx-1" />
-                        <div className="text-[10px] font-bold text-blue-900 leading-tight uppercase">
+                        <div className="h-6 w-px bg-zinc-300 mx-1" />
+                        <div className="text-[9px] font-bold text-blue-900 leading-tight uppercase">
                           RENOVA<span className="text-orange-500">DF</span><br/>
-                          <span className="text-[8px] font-normal text-zinc-500">Secretaria de Trabalho</span>
+                          <span className="text-[7px] font-normal text-zinc-500">Secretaria de Trabalho</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <h2 className="text-center font-bold text-xl mb-6 uppercase tracking-widest border-b-2 border-zinc-900 pb-2">
+                <h2 className="text-center font-bold text-lg mb-3 uppercase tracking-widest border-b-2 border-zinc-900 pb-1">
                   Formulário de Entrega
                 </h2>
 
                 {/* Dynamic Header Table */}
-                <div className="grid grid-cols-12 border-2 border-zinc-900 mb-6 text-xs">
-                  <div className="col-span-4 border-r border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">Data Início:</label>
+                <div className="grid grid-cols-12 border-2 border-zinc-900 mb-4 text-[10px]">
+                  <div className="col-span-4 border-r border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">Data Início:</label>
                     <input 
                       type="date" 
                       name="dataInicio"
@@ -514,8 +514,8 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-4 border-r border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">Data Fim:</label>
+                  <div className="col-span-4 border-r border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">Data Fim:</label>
                     <input 
                       type="date" 
                       name="dataFim"
@@ -524,8 +524,8 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-4 border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">Ciclo:</label>
+                  <div className="col-span-4 border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">Ciclo:</label>
                     <input 
                       type="text" 
                       name="ciclo"
@@ -534,8 +534,8 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-8 border-r border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">Endereço:</label>
+                  <div className="col-span-8 border-r border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">Endereço:</label>
                     <input 
                       type="text" 
                       name="endereco"
@@ -544,8 +544,8 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-4 border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">RA:</label>
+                  <div className="col-span-4 border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">RA:</label>
                     <input 
                       type="text" 
                       name="ra"
@@ -554,8 +554,8 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-6 border-r border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">Instrutor:</label>
+                  <div className="col-span-6 border-r border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">Instrutor:</label>
                     <input 
                       type="text" 
                       name="instrutor"
@@ -564,8 +564,8 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-6 border-b border-zinc-900 p-2">
-                    <label className="block font-bold mb-1">Equipamento:</label>
+                  <div className="col-span-6 border-b border-zinc-900 p-1.5">
+                    <label className="block font-bold mb-0">Equipamento:</label>
                     <input 
                       type="text" 
                       name="equipamento"
@@ -574,7 +574,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-12 p-2 flex items-center gap-4">
+                  <div className="col-span-12 p-1.5 flex items-center gap-4">
                     <span className="font-bold">Quantidade de alunos envolvidos na recuperação:</span>
                     <div className="flex items-center gap-2">
                       <label className="font-bold">Matutino</label>
@@ -675,10 +675,10 @@ export default function App() {
                 )}
 
                 {/* Page 2 Start (Simulated in same container for easy PDF gen) */}
-                <div className="mt-12 pt-8 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor">
+                <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
                   
-                  <div className="border-2 border-zinc-900 mb-8">
+                  <div className="border-2 border-zinc-900 mb-4">
                     <div className="bg-blue-600 text-white font-bold p-1 text-center uppercase tracking-wider text-xs">
                       Observações
                     </div>
@@ -692,12 +692,12 @@ export default function App() {
                   </div>
 
                   {/* Footer Data */}
-                  <div className="flex justify-center mb-16 text-sm">
+                  <div className="flex justify-center mb-8 text-sm">
                     <p>Data: <span className="font-bold">{formattedDate.day}</span> de <span className="font-bold">{formattedDate.month}</span> de <span className="font-bold">{formattedDate.year}</span>.</p>
                   </div>
 
                   {/* Signature Lines */}
-                  <div className="space-y-12 mt-20">
+                  <div className="space-y-8 mt-10">
                     <div className="relative">
                       <div className="border-t border-zinc-900 w-full max-w-md mx-auto" />
                       <p className="text-center text-xs font-bold mt-2">Assinatura fiscal da SEDET:</p>
@@ -709,7 +709,7 @@ export default function App() {
                   </div>
 
                   {/* Institutional Footer */}
-                  <footer className="mt-24 pt-4 border-t border-blue-200 print:border-zinc-900 grid grid-cols-3 text-[9px] text-blue-800">
+                  <footer className="mt-12 pt-4 border-t border-blue-200 print:border-zinc-900 grid grid-cols-3 text-[9px] text-blue-800">
                     <div>
                       <p className="font-bold">SENAI</p>
                       <p>Serviço Nacional de Aprendizagem Industrial</p>
