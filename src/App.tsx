@@ -291,6 +291,9 @@ export default function App() {
 
   // Group items by category
   const categories = Array.from(new Set(CHECKLIST_DATA.map(item => item.category)));
+  const breakIndex = categories.indexOf('REGISTROS DIVERSOS');
+  const firstPartCategories = breakIndex !== -1 ? categories.slice(0, breakIndex) : categories;
+  const secondPartCategories = breakIndex !== -1 ? categories.slice(breakIndex) : [];
 
   return (
     <div className="min-h-screen bg-zinc-100 py-8 px-4 sm:px-6 lg:px-12 print:p-0 print:bg-white transition-all duration-300">
@@ -596,8 +599,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Checklist Table */}
-                <div className="border-2 border-zinc-900 text-[10px]">
+                {/* Checklist Table Part 1 */}
+                <div className="border-2 border-zinc-900 text-[10px] mb-0">
                   <div className="grid grid-cols-12 bg-yellow-400 font-bold border-b border-zinc-900">
                     <div className="col-span-8 p-2 border-r border-zinc-900 uppercase">Descrição das Atividades Executadas</div>
                     <div className="col-span-1 p-2 border-r border-zinc-900 text-center text-blue-700">SIM</div>
@@ -605,13 +608,13 @@ export default function App() {
                     <div className="col-span-2 p-2 text-center text-blue-700">NÃO SE APLICA</div>
                   </div>
 
-                  {categories.map((cat) => (
+                  {firstPartCategories.map((cat) => (
                     <React.Fragment key={cat}>
                       <div className="bg-zinc-100 font-bold p-1 text-center border-b border-zinc-900 uppercase tracking-wider">
                         {cat}
                       </div>
                       {CHECKLIST_DATA.filter(item => item.category === cat).map((item) => (
-                        <div key={item.id} className="grid grid-cols-12 border-b border-zinc-900 last:border-b-0">
+                        <div key={item.id} className="grid grid-cols-12 border-b border-zinc-900 last:border-b-0 print:break-inside-avoid">
                           <div className="col-span-8 p-1.5 border-r border-zinc-900 flex items-center">
                             {item.text}
                           </div>
@@ -635,6 +638,41 @@ export default function App() {
                     </React.Fragment>
                   ))}
                 </div>
+
+                {/* Checklist Table Part 2 (REGISTROS DIVERSOS) */}
+                {secondPartCategories.length > 0 && (
+                  <div className="border-2 border-zinc-900 text-[10px] mt-4 print:mt-0 print:break-before-page">
+                    {secondPartCategories.map((cat) => (
+                      <React.Fragment key={cat}>
+                        <div className="bg-zinc-100 font-bold p-1 text-center border-b border-zinc-900 uppercase tracking-wider">
+                          {cat}
+                        </div>
+                        {CHECKLIST_DATA.filter(item => item.category === cat).map((item) => (
+                          <div key={item.id} className="grid grid-cols-12 border-b border-zinc-900 last:border-b-0 print:break-inside-avoid">
+                            <div className="col-span-8 p-1.5 border-r border-zinc-900 flex items-center">
+                              {item.text}
+                            </div>
+                            <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'SIM')}>
+                              <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
+                                {formData.respostas[item.id] === 'SIM' && <div className="text-black font-bold text-[12px]">X</div>}
+                              </div>
+                            </div>
+                            <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'NÃO')}>
+                              <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
+                                {formData.respostas[item.id] === 'NÃO' && <div className="text-black font-bold text-[12px]">X</div>}
+                              </div>
+                            </div>
+                            <div className="col-span-2 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'NÃO SE APLICA')}>
+                              <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
+                                {formData.respostas[item.id] === 'NÃO SE APLICA' && <div className="text-black font-bold text-[12px]">X</div>}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
 
                 {/* Page 2 Start (Simulated in same container for easy PDF gen) */}
                 <div className="mt-12 pt-8 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor">
