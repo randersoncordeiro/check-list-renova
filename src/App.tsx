@@ -73,6 +73,7 @@ export default function App() {
   const [signatures, setSignatures] = useState<Signature[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeSignature, setActiveSignature] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   // Sync Data Fim to Footer
@@ -150,7 +151,8 @@ export default function App() {
       const originalPosition = pdfRef.current.style.position;
       const originalZIndex = pdfRef.current.style.zIndex;
       
-      pdfRef.current.style.transform = 'none';
+      // Forçar escala 1 para captura perfeita
+      pdfRef.current.style.setProperty('transform', 'none', 'important');
       pdfRef.current.style.transition = 'none';
       pdfRef.current.style.position = 'relative';
       pdfRef.current.style.zIndex = '9999';
@@ -263,11 +265,11 @@ export default function App() {
   const categories = Array.from(new Set(CHECKLIST_DATA.map(item => item.category)));
 
   return (
-    <div className="min-h-screen bg-zinc-100 py-8 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
-      <div className="max-w-5xl mx-auto space-y-8 print:space-y-0">
+    <div className="min-h-screen bg-zinc-100 py-8 px-4 sm:px-6 lg:px-12 print:p-0 print:bg-white transition-all duration-300">
+      <div className="max-w-[1600px] mx-auto space-y-8 print:space-y-0">
         
         {/* App Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-zinc-200 no-print">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-zinc-200 no-print sticky top-0 z-[60]">
           <div>
             <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
               <FileText className="text-blue-600" />
@@ -296,10 +298,10 @@ export default function App() {
           </div>
         </header>
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:block">
+        <main className="grid grid-cols-1 lg:grid-cols-12 gap-10 print:block">
           
           {/* Form Controls */}
-          <div className="lg:col-span-1 space-y-6 no-print">
+          <div className="lg:col-span-4 xl:col-span-3 space-y-6 no-print lg:sticky lg:top-32 lg:self-start max-h-[calc(100vh-10rem)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-300">
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-zinc-200 space-y-4">
               <h2 className="text-lg font-semibold flex items-center gap-2 border-b pb-3">
                 <ImageIcon size={18} className="text-blue-500" />
@@ -379,12 +381,40 @@ export default function App() {
           </div>
 
           {/* PDF Preview / Editor */}
-          <div className="lg:col-span-2">
-            <div className="overflow-x-auto pb-8">
+          <div className="lg:col-span-8 xl:col-span-9 space-y-4">
+            <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-zinc-200 no-print">
+              <div className="flex items-center gap-2 text-sm font-medium text-zinc-600">
+                <Maximize2 size={16} />
+                Zoom do Preview
+              </div>
+              <div className="flex items-center gap-4">
+                <input 
+                  type="range" 
+                  min="0.5" 
+                  max="1.5" 
+                  step="0.05" 
+                  value={zoom} 
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  className="w-32 h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+                <span className="text-xs font-mono text-zinc-500 w-10">{Math.round(zoom * 100)}%</span>
+                <button 
+                  onClick={() => setZoom(1)}
+                  className="text-[10px] uppercase font-bold text-blue-600 hover:text-blue-700"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto pb-12 flex justify-center lg:justify-start xl:justify-center">
               <div 
                 ref={pdfRef}
-                className="pdf-page shadow-2xl origin-top scale-[0.8] sm:scale-100 print:scale-100 print:m-0 print:shadow-none"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="pdf-page shadow-2xl origin-top print:scale-100 print:m-0 print:shadow-none transition-all duration-300"
+                style={{ 
+                  fontFamily: 'Inter, sans-serif',
+                  transform: `scale(${zoom})`
+                }}
               >
                 {/* Header Logos */}
                 <div className="flex justify-between items-start mb-8">
