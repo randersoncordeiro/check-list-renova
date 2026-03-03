@@ -123,7 +123,13 @@ export default function App() {
   };
 
   const handlePrint = () => {
-    window.print();
+    const prevZoom = zoom;
+    setZoom(1);
+    // Pequeno delay para o layout estabilizar em escala 1:1 antes de abrir o diálogo de impressão
+    setTimeout(() => {
+      window.print();
+      setZoom(prevZoom);
+    }, 300);
   };
 
   const generatePDF = async () => {
@@ -190,19 +196,31 @@ export default function App() {
               color: black !important;
               font-family: sans-serif !important;
               padding: 20mm !important;
+              display: block !important;
             }
             .pdf-page * {
               border-color: black !important;
               color: black !important;
-              background-color: transparent !important;
             }
-            .pdf-page .bg-yellow-400 { background-color: #FFD700 !important; }
-            .pdf-page .bg-blue-600 { background-color: #0056b3 !important; }
-            .pdf-page .bg-zinc-100 { background-color: #f8f9fa !important; }
-            .pdf-page .bg-zinc-800 { background-color: #212529 !important; }
+            .pdf-page .bg-yellow-400 { background-color: #FFD700 !important; -webkit-print-color-adjust: exact; }
+            .pdf-page .bg-blue-600 { background-color: #0056b3 !important; -webkit-print-color-adjust: exact; }
+            .pdf-page .bg-zinc-100 { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
+            .pdf-page .bg-zinc-800, .pdf-page .bg-black { background-color: #000000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .pdf-page .text-white { color: white !important; }
             .pdf-page .text-blue-700 { color: #004085 !important; }
             .pdf-page .text-red-600 { color: #c82333 !important; }
+            .pdf-page input, .pdf-page textarea { background: transparent !important; border: none !important; border-bottom: 1px solid black !important; color: black !important; }
+            .pdf-page .grid { display: flex !important; flex-wrap: wrap !important; }
+            .pdf-page .col-span-12 { width: 100% !important; flex: 0 0 100% !important; }
+            .pdf-page .col-span-8 { width: 66.66% !important; flex: 0 0 66.66% !important; }
+            .pdf-page .col-span-6 { width: 50% !important; flex: 0 0 50% !important; }
+            .pdf-page .col-span-4 { width: 33.33% !important; flex: 0 0 33.33% !important; }
+            .pdf-page .col-span-2 { width: 16.66% !important; flex: 0 0 16.66% !important; }
+            .pdf-page .col-span-1 { width: 8.33% !important; flex: 0 0 8.33% !important; }
+            .pdf-page .page-2-anchor { border-top: 1px solid #eee !important; margin-top: 40mm !important; padding-top: 20mm !important; }
+            .pdf-page .bg-black { background-color: black !important; }
+            .pdf-page .relative { position: relative !important; }
+            .pdf-page .absolute { position: absolute !important; }
           `;
           clonedDoc.head.appendChild(style);
 
@@ -212,7 +230,17 @@ export default function App() {
             el.style.margin = '0';
             el.style.boxShadow = 'none';
             el.style.overflow = 'visible';
+            el.style.display = 'block';
           }
+
+          // Preservar valores de inputs e textareas no clone para o html2canvas
+          clonedDoc.querySelectorAll('input, textarea').forEach((input: any) => {
+            if (input.tagName === 'TEXTAREA') {
+              input.innerHTML = input.value;
+            } else {
+              input.setAttribute('value', input.value);
+            }
+          });
         }
       });
       
@@ -588,18 +616,18 @@ export default function App() {
                             {item.text}
                           </div>
                           <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'SIM')}>
-                            <div className={cn("w-4 h-4 border border-zinc-900 flex items-center justify-center", formData.respostas[item.id] === 'SIM' && "bg-zinc-800")}>
-                              {formData.respostas[item.id] === 'SIM' && <div className="w-2 h-2 bg-white" />}
+                            <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
+                              {formData.respostas[item.id] === 'SIM' && <div className="text-black font-bold text-[12px]">X</div>}
                             </div>
                           </div>
                           <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'NÃO')}>
-                            <div className={cn("w-4 h-4 border border-zinc-900 flex items-center justify-center", formData.respostas[item.id] === 'NÃO' && "bg-zinc-800")}>
-                              {formData.respostas[item.id] === 'NÃO' && <div className="w-2 h-2 bg-white" />}
+                            <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
+                              {formData.respostas[item.id] === 'NÃO' && <div className="text-black font-bold text-[12px]">X</div>}
                             </div>
                           </div>
                           <div className="col-span-2 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'NÃO SE APLICA')}>
-                            <div className={cn("w-4 h-4 border border-zinc-900 flex items-center justify-center", formData.respostas[item.id] === 'NÃO SE APLICA' && "bg-zinc-800")}>
-                              {formData.respostas[item.id] === 'NÃO SE APLICA' && <div className="w-2 h-2 bg-white" />}
+                            <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
+                              {formData.respostas[item.id] === 'NÃO SE APLICA' && <div className="text-black font-bold text-[12px]">X</div>}
                             </div>
                           </div>
                         </div>
@@ -609,7 +637,7 @@ export default function App() {
                 </div>
 
                 {/* Page 2 Start (Simulated in same container for easy PDF gen) */}
-                <div className="mt-12 pt-8 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0">
+                <div className="mt-12 pt-8 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
                   
                   <div className="border-2 border-zinc-900 mb-8">
@@ -663,16 +691,18 @@ export default function App() {
                 <AnimatePresence>
                   {signatures.map((sig) => (
                     <motion.div
-                      key={sig.id}
+                      key={`${sig.id}-${sig.x}-${sig.y}`}
                       drag
                       dragMomentum={false}
                       onDragEnd={(_, info) => {
-                        // This is a simplified positioning. 
-                        // In a real app, we'd calculate relative to the container.
-                        // For this demo, we'll just let motion handle the visual drag.
+                        // Atualiza a posição real no estado para que o html2canvas capture corretamente
+                        updateSignature(sig.id, {
+                          x: sig.x + (info.offset.x / zoom),
+                          y: sig.y + (info.offset.y / zoom)
+                        });
                       }}
                       className={cn(
-                        "absolute cursor-move group z-50 print:cursor-default print:ring-0",
+                        "absolute cursor-move group z-50 print:cursor-default print:ring-0 print:!transform-none",
                         activeSignature === sig.id && "ring-2 ring-blue-500 ring-offset-2"
                       )}
                       style={{ 

@@ -114,6 +114,19 @@
   background: #d4d4d8; /* zinc-300 */
 }
 
+/* Ensure checkboxes have visible marks in print */
+.pdf-page .bg-black {
+  background-color: #000000 !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pdf-page .text-white {
+  color: #ffffff !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
 @media print {
   @page {
     size: A4;
@@ -124,13 +137,22 @@
   }
   .pdf-page {
     box-shadow: none;
-    margin: 0;
-    width: 210mm;
-    min-height: 297mm;
-    padding: 20mm;
+    margin: 0 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    padding: 20mm !important;
+    transform: none !important;
+    left: 0 !important;
+    top: 0 !important;
+    position: relative !important;
   }
   /* Hide UI elements during browser print */
-  nav, .no-print, button {
+  nav, .no-print, button, .lg\:sticky {
     display: none !important;
+  }
+  /* Force background colors in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
