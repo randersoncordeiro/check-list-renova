@@ -16,13 +16,15 @@
 .pdf-page {
   width: 210mm;
   min-height: 297mm;
-  padding: 15mm;
+  padding: 20mm;
   margin: 0 auto;
   background: #ffffff !important;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
   position: relative;
   overflow: visible;
-  color: #18181b !important; /* zinc-900 */
+  color: #000000 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  line-height: 1.4;
 }
 
 /* Aggressive oklch override for html2canvas compatibility */
@@ -30,60 +32,90 @@
 .pdf-page *, 
 .pdf-page *:before, 
 .pdf-page *:after {
-  border-color: #18181b !important; /* zinc-900 */
+  border-color: #000000 !important;
   outline-color: transparent !important;
   text-decoration-color: currentColor !important;
 }
 
-/* Specific class overrides with hex colors */
-.pdf-page .bg-yellow-400 { background-color: #facc15 !important; }
-.pdf-page .bg-blue-600 { background-color: #2563eb !important; }
-.pdf-page .bg-zinc-100 { background-color: #f4f4f5 !important; }
-.pdf-page .bg-zinc-800 { background-color: #27272a !important; }
-.pdf-page .bg-zinc-300 { background-color: #d4d4d8 !important; }
+/* Specific class overrides with hex colors for print quality */
+.pdf-page .bg-yellow-400 { background-color: #FFD700 !important; } /* Gold for better print contrast */
+.pdf-page .bg-blue-600 { background-color: #0056b3 !important; }
+.pdf-page .bg-zinc-100 { background-color: #f8f9fa !important; }
+.pdf-page .bg-zinc-800 { background-color: #212529 !important; }
+.pdf-page .bg-zinc-300 { background-color: #dee2e6 !important; }
 .pdf-page .bg-white { background-color: #ffffff !important; }
 .pdf-page .bg-transparent { background-color: transparent !important; }
 
-.pdf-page .text-blue-700 { color: #1d4ed8 !important; }
-.pdf-page .text-blue-600 { color: #2563eb !important; }
-.pdf-page .text-blue-800 { color: #1e40af !important; }
-.pdf-page .text-blue-900 { color: #1e3a8a !important; }
-.pdf-page .text-red-600 { color: #dc2626 !important; }
-.pdf-page .text-orange-500 { color: #f97316 !important; }
-.pdf-page .text-zinc-900 { color: #18181b !important; }
-.pdf-page .text-zinc-700 { color: #3f3f46 !important; }
-.pdf-page .text-zinc-500 { color: #71717a !important; }
-.pdf-page .text-zinc-400 { color: #a1a1aa !important; }
+.pdf-page .text-blue-700 { color: #004085 !important; }
+.pdf-page .text-blue-600 { color: #0056b3 !important; }
+.pdf-page .text-blue-800 { color: #002752 !important; }
+.pdf-page .text-blue-900 { color: #001d3d !important; }
+.pdf-page .text-red-600 { color: #c82333 !important; }
+.pdf-page .text-orange-500 { color: #d35400 !important; }
+.pdf-page .text-zinc-900 { color: #000000 !important; }
+.pdf-page .text-zinc-700 { color: #343a40 !important; }
+.pdf-page .text-zinc-500 { color: #6c757d !important; }
+.pdf-page .text-zinc-400 { color: #adb5bd !important; }
 
-.pdf-page .border-zinc-900 { border-color: #18181b !important; }
-.pdf-page .border-zinc-300 { border-color: #d4d4d8 !important; }
-.pdf-page .border-zinc-200 { border-color: #e4e4e7 !important; }
-.pdf-page .border-blue-200 { border-color: #bfdbfe !important; }
-.pdf-page .border-b-2 { border-bottom-width: 2px !important; }
-.pdf-page .border-2 { border-width: 2px !important; }
+.pdf-page .border-zinc-900 { border-color: #000000 !important; }
+.pdf-page .border-zinc-300 { border-color: #ced4da !important; }
+.pdf-page .border-zinc-200 { border-color: #e9ecef !important; }
+.pdf-page .border-blue-200 { border-color: #b8daff !important; }
+.pdf-page .border-b-2 { border-bottom-width: 2px !important; border-bottom-style: solid !important; }
+.pdf-page .border-2 { border-width: 2px !important; border-style: solid !important; }
+
+/* Print-specific layout adjustments */
+.pdf-page table, 
+.pdf-page .grid {
+  page-break-inside: avoid;
+}
+
+.pdf-page h2, 
+.pdf-page h3 {
+  page-break-after: avoid;
+}
 
 /* Ensure inputs and textareas don't have oklch focus rings or borders */
 .pdf-page input, 
 .pdf-page textarea {
-  border-color: inherit !important;
+  border: none !important;
+  border-bottom: 1px solid #000000 !important;
   background-color: transparent !important;
-  color: inherit !important;
+  color: #000000 !important;
+  padding: 2px 0 !important;
+}
+
+.pdf-page input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 /* Lucide icons and other SVGs */
 .pdf-page svg {
   color: inherit !important;
-  stroke: currentColor !important;
+  stroke: #000000 !important;
   fill: none !important;
 }
 
-.pdf-page .text-blue-500 { color: #3b82f6 !important; }
+.pdf-page .text-blue-500 { color: #007bff !important; }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body {
+    background: white;
+  }
   .pdf-page {
     box-shadow: none;
     margin: 0;
     width: 210mm;
-    height: 297mm;
+    min-height: 297mm;
+    padding: 20mm;
+  }
+  /* Hide UI elements during browser print */
+  nav, .no-print, button {
+    display: none !important;
   }
 }

@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Plus,
+  Printer,
   Image as ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -120,6 +121,10 @@ export default function App() {
     setSignatures(prev => prev.filter(s => s.id !== id));
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const generatePDF = async () => {
     console.log('Iniciando geração de PDF...');
     if (!pdfRef.current) {
@@ -154,7 +159,7 @@ export default function App() {
 
       console.log('Capturando canvas com html2canvas...');
       const canvas = await html2canvas(pdfRef.current, {
-        scale: 2,
+        scale: 3, // Aumentado para 3x para qualidade ultra-nítida em A4
         useCORS: true,
         allowTaint: false,
         logging: false,
@@ -182,19 +187,20 @@ export default function App() {
               background: white !important;
               color: black !important;
               font-family: sans-serif !important;
+              padding: 20mm !important;
             }
             .pdf-page * {
               border-color: black !important;
               color: black !important;
               background-color: transparent !important;
             }
-            .pdf-page .bg-yellow-400 { background-color: #facc15 !important; }
-            .pdf-page .bg-blue-600 { background-color: #2563eb !important; }
-            .pdf-page .bg-zinc-100 { background-color: #f4f4f5 !important; }
-            .pdf-page .bg-zinc-800 { background-color: #27272a !important; }
+            .pdf-page .bg-yellow-400 { background-color: #FFD700 !important; }
+            .pdf-page .bg-blue-600 { background-color: #0056b3 !important; }
+            .pdf-page .bg-zinc-100 { background-color: #f8f9fa !important; }
+            .pdf-page .bg-zinc-800 { background-color: #212529 !important; }
             .pdf-page .text-white { color: white !important; }
-            .pdf-page .text-blue-700 { color: #1d4ed8 !important; }
-            .pdf-page .text-red-600 { color: #dc2626 !important; }
+            .pdf-page .text-blue-700 { color: #004085 !important; }
+            .pdf-page .text-red-600 { color: #c82333 !important; }
           `;
           clonedDoc.head.appendChild(style);
 
@@ -216,8 +222,13 @@ export default function App() {
 
       console.log('Canvas capturado. Gerando PDF...');
       
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/jpeg', 1.0); // Qualidade máxima
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -228,13 +239,13 @@ export default function App() {
       let heightLeft = imgHeight;
       let position = 0;
 
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
       heightLeft -= pdfHeight;
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
         heightLeft -= pdfHeight;
       }
 
@@ -242,7 +253,7 @@ export default function App() {
       pdf.save(fileName);
     } catch (error) {
       console.error('Erro detalhado ao gerar PDF:', error);
-      alert('Erro ao gerar PDF. Tente novamente ou use o Chrome/Edge.');
+      alert('Erro ao gerar PDF. Tente novamente ou use o botão Imprimir.');
     } finally {
       setIsGenerating(false);
     }
@@ -252,11 +263,11 @@ export default function App() {
   const categories = Array.from(new Set(CHECKLIST_DATA.map(item => item.category)));
 
   return (
-    <div className="min-h-screen bg-zinc-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-zinc-100 py-8 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
+      <div className="max-w-5xl mx-auto space-y-8 print:space-y-0">
         
         {/* App Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-zinc-200">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-zinc-200 no-print">
           <div>
             <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
               <FileText className="text-blue-600" />
@@ -264,7 +275,15 @@ export default function App() {
             </h1>
             <p className="text-zinc-500 text-sm">Formulário de Entrega de Equipamento - 2025</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 no-print">
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-zinc-200"
+            >
+              <Printer size={18} />
+              Imprimir
+            </button>
             <button
               type="button"
               onClick={generatePDF}
@@ -277,10 +296,10 @@ export default function App() {
           </div>
         </header>
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:block">
           
           {/* Form Controls */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-6 no-print">
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-zinc-200 space-y-4">
               <h2 className="text-lg font-semibold flex items-center gap-2 border-b pb-3">
                 <ImageIcon size={18} className="text-blue-500" />
@@ -364,7 +383,7 @@ export default function App() {
             <div className="overflow-x-auto pb-8">
               <div 
                 ref={pdfRef}
-                className="pdf-page shadow-2xl origin-top scale-[0.8] sm:scale-100"
+                className="pdf-page shadow-2xl origin-top scale-[0.8] sm:scale-100 print:scale-100 print:m-0 print:shadow-none"
                 style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {/* Header Logos */}
@@ -560,8 +579,8 @@ export default function App() {
                 </div>
 
                 {/* Page 2 Start (Simulated in same container for easy PDF gen) */}
-                <div className="mt-12 pt-8 border-t-2 border-dashed border-zinc-300 relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] text-zinc-400 font-mono">PÁGINA 2</div>
+                <div className="mt-12 pt-8 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
                   
                   <div className="border-2 border-zinc-900 mb-8">
                     <div className="bg-blue-600 text-white font-bold p-1 text-center uppercase tracking-wider text-xs">
@@ -594,7 +613,7 @@ export default function App() {
                   </div>
 
                   {/* Institutional Footer */}
-                  <footer className="mt-24 pt-4 border-t border-blue-200 grid grid-cols-3 text-[9px] text-blue-800">
+                  <footer className="mt-24 pt-4 border-t border-blue-200 print:border-zinc-900 grid grid-cols-3 text-[9px] text-blue-800">
                     <div>
                       <p className="font-bold">SENAI</p>
                       <p>Serviço Nacional de Aprendizagem Industrial</p>
@@ -623,7 +642,7 @@ export default function App() {
                         // For this demo, we'll just let motion handle the visual drag.
                       }}
                       className={cn(
-                        "absolute cursor-move group z-50",
+                        "absolute cursor-move group z-50 print:cursor-default print:ring-0",
                         activeSignature === sig.id && "ring-2 ring-blue-500 ring-offset-2"
                       )}
                       style={{ 
@@ -639,13 +658,13 @@ export default function App() {
                         alt="Assinatura" 
                         className="w-full h-full object-contain pointer-events-none"
                       />
-                      <div className="absolute -top-6 left-0 bg-blue-600 text-white text-[8px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      <div className="absolute -top-6 left-0 bg-blue-600 text-white text-[8px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap no-print">
                         {sig.label}
                       </div>
                       
                       {/* Resize Handle */}
                       <button 
-                        className="absolute -bottom-2 -right-2 bg-white border border-zinc-300 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                        className="absolute -bottom-2 -right-2 bg-white border border-zinc-300 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm no-print"
                         onMouseDown={(e) => {
                           e.stopPropagation();
                           const startX = e.clientX;
@@ -686,7 +705,7 @@ export default function App() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-zinc-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 z-[100]"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-zinc-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 z-[100] no-print"
           >
             <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white" />
             <span className="font-medium">Gerando documento A4...</span>
