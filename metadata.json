@@ -1,0 +1,5 @@
+{
+  "name": "SENAI Checklist Digital",
+  "description": "Aplicativo para preenchimento e geração de PDF do Checklist de Entrega de Equipamento SENAI 2025.",
+  "requestFramePermissions": []
+}
