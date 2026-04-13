@@ -48,6 +48,72 @@ interface Signature {
 
 // --- Components ---
 
+const HeaderLogos = () => (
+  <div className="relative w-full pt-6">
+    {/* Header Ribbons */}
+    <div className="absolute top-0 right-0 w-[45%] h-5 sm:h-6 flex justify-end no-print-adjust" style={{ pointerEvents: 'none' }}>
+      <div className="bg-[#244b9b] h-full w-[85%] relative" style={{ clipPath: 'polygon(15px 0, 100% 0, 100% 100%, 0 100%)' }}></div>
+      <div className="bg-[#ef5a24] h-full w-[10%] ml-1 sm:ml-2 relative" style={{ clipPath: 'polygon(15px 0, 100% 0, 100% 100%, 0 100%)' }}></div>
+    </div>
+
+    {/* Header Logos */}
+    <div className="flex justify-between items-end mb-6 mt-2 relative z-10">
+      <div className="flex items-center gap-2 min-w-[100px]">
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SENAI_Logo.svg/512px-SENAI_Logo.svg.png" 
+          alt="SENAI" 
+          className="h-10 object-contain"
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            const parent = e.currentTarget.parentElement;
+            if (parent) {
+              const span = document.createElement('span');
+              span.innerText = 'SENAI';
+              span.className = 'font-bold text-[#1b4596] text-3xl italic tracking-tighter';
+              parent.appendChild(span);
+            }
+          }}
+        />
+      </div>
+      <div className="flex items-center gap-3 pr-2">
+        <div className="flex items-center gap-3 min-w-[120px] justify-end">
+          <div className="bg-[#0b65ab] py-1 px-2 rounded-[2px] flex items-center justify-center">
+            <img 
+              src="https://www.agenciabrasilia.df.gov.br/wp-content/uploads/2019/01/logo_gdf.png" 
+              alt="GDF" 
+              className="h-6 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+              referrerPolicy="no-referrer"
+              crossOrigin="anonymous"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const parent = e.currentTarget.parentElement;
+                if (parent) {
+                  const span = document.createElement('span');
+                  span.innerText = 'GDF';
+                  span.className = 'font-bold text-white text-sm';
+                  parent.appendChild(span);
+                }
+              }}
+            />
+          </div>
+          <div className="flex flex-col justify-center">
+            <div className="text-[20px] font-bold leading-none tracking-tight flex items-center">
+              <span className="text-[#244b9b]">RENOVA</span>
+              <span className="text-[#fbed21]">DF</span>
+            </div>
+            <div className="text-[10px] font-medium text-[#0b65ab] uppercase leading-tight tracking-wider mt-[2px]">
+              SECRETARIA DE TRABALHO
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function App() {
   const [formData, setFormData] = useState<FormData>({
     dataInicio: '',
@@ -104,7 +170,7 @@ export default function App() {
           url: event.target?.result as string,
           x: 50,
           y: 850, // Default position near bottom
-          width: 150,
+          width: 100, // Used as % scale now
           height: 60,
           label
         };
@@ -291,9 +357,6 @@ export default function App() {
 
   // Group items by category
   const categories = Array.from(new Set(CHECKLIST_DATA.map(item => item.category)));
-  const breakIndex = categories.indexOf('REGISTROS DIVERSOS');
-  const firstPartCategories = breakIndex !== -1 ? categories.slice(0, breakIndex) : categories;
-  const secondPartCategories = breakIndex !== -1 ? categories.slice(breakIndex) : [];
 
   return (
     <div className="min-h-screen bg-zinc-100 py-8 px-4 sm:px-6 lg:px-12 print:p-0 print:bg-white transition-all duration-300">
@@ -347,34 +410,64 @@ export default function App() {
                       accept="image/*" 
                       onChange={(e) => handleSignatureUpload(e, 'Fiscal SEDET')}
                       className="hidden" 
-                      id="sig-sedet"
+                      id="sig-fiscal"
                     />
                     <label 
-                      htmlFor="sig-sedet"
+                      htmlFor="sig-fiscal"
                       className="flex items-center justify-center gap-2 w-full p-3 border-2 border-dashed border-zinc-200 rounded-xl cursor-pointer group-hover:border-blue-400 group-hover:bg-blue-50 transition-all"
                     >
                       <Plus size={18} className="text-zinc-400 group-hover:text-blue-500" />
                       <span className="text-sm text-zinc-500 group-hover:text-blue-600">Upload Assinatura</span>
                     </label>
+                    {signatures.find(s => s.label === 'Fiscal SEDET') && (
+                      <div className="mt-2 text-xs text-zinc-500">
+                        <div className="flex justify-between items-center mb-1">
+                          <span>Tamanho</span>
+                          <button onClick={() => setSignatures(prev => prev.filter(s => s.label !== 'Fiscal SEDET'))} className="text-red-500 hover:underline">Remover</button>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="20" max="250" 
+                          value={signatures.find(s => s.label === 'Fiscal SEDET')?.width || 100} 
+                          onChange={(e) => updateSignature(signatures.find(s => s.label === 'Fiscal SEDET')!.id, { width: parseInt(e.target.value) })}
+                          className="w-full accent-blue-600"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-zinc-700">Supervisão Técnica SENAI</label>
+                  <label className="text-sm font-medium text-zinc-700">Supervisor</label>
                   <div className="relative group">
                     <input 
                       type="file" 
                       accept="image/*" 
-                      onChange={(e) => handleSignatureUpload(e, 'Supervisão SENAI')}
+                      onChange={(e) => handleSignatureUpload(e, 'Supervisor')}
                       className="hidden" 
-                      id="sig-senai"
+                      id="sig-supervisor"
                     />
                     <label 
-                      htmlFor="sig-senai"
+                      htmlFor="sig-supervisor"
                       className="flex items-center justify-center gap-2 w-full p-3 border-2 border-dashed border-zinc-200 rounded-xl cursor-pointer group-hover:border-blue-400 group-hover:bg-blue-50 transition-all"
                     >
                       <Plus size={18} className="text-zinc-400 group-hover:text-blue-500" />
                       <span className="text-sm text-zinc-500 group-hover:text-blue-600">Upload Assinatura</span>
                     </label>
+                    {signatures.find(s => s.label === 'Supervisor') && (
+                      <div className="mt-2 text-xs text-zinc-500">
+                        <div className="flex justify-between items-center mb-1">
+                          <span>Tamanho</span>
+                          <button onClick={() => setSignatures(prev => prev.filter(s => s.label !== 'Supervisor'))} className="text-red-500 hover:underline">Remover</button>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="20" max="250" 
+                          value={signatures.find(s => s.label === 'Supervisor')?.width || 100} 
+                          onChange={(e) => updateSignature(signatures.find(s => s.label === 'Supervisor')!.id, { width: parseInt(e.target.value) })}
+                          className="w-full accent-blue-600"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -406,7 +499,7 @@ export default function App() {
                 <li>Preencha todos os campos do cabeçalho.</li>
                 <li>Marque uma opção para cada item da lista.</li>
                 <li>Use o campo de observações para detalhes extras.</li>
-                <li>Arraste as assinaturas no preview para posicioná-las.</li>
+                <li>Faça o upload das assinaturas e elas serão posicionadas automaticamente.</li>
               </ul>
             </section>
           </div>
@@ -447,64 +540,15 @@ export default function App() {
                   transform: `scale(${zoom})`
                 }}
               >
-                {/* Header Logos */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-2 min-w-[100px]">
-                    <img 
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SENAI_Logo.svg/512px-SENAI_Logo.svg.png" 
-                      alt="SENAI" 
-                      className="h-8 object-contain"
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                          const span = document.createElement('span');
-                          span.innerText = 'SENAI';
-                          span.className = 'font-bold text-blue-700 text-lg';
-                          parent.appendChild(span);
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center gap-2 min-w-[120px] justify-end">
-                        <img 
-                          src="https://www.agenciabrasilia.df.gov.br/wp-content/uploads/2019/01/logo_gdf.png" 
-                          alt="GDF" 
-                          className="h-6 object-contain"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const parent = e.currentTarget.parentElement;
-                            if (parent) {
-                              const span = document.createElement('span');
-                              span.innerText = 'GDF';
-                              span.className = 'font-bold text-blue-900 text-base';
-                              parent.appendChild(span);
-                            }
-                          }}
-                        />
-                        <div className="h-6 w-px bg-zinc-300 mx-1" />
-                        <div className="text-[9px] font-bold text-blue-900 leading-tight uppercase">
-                          RENOVA<span className="text-orange-500">DF</span><br/>
-                          <span className="text-[7px] font-normal text-zinc-500">Secretaria de Trabalho</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <HeaderLogos />
 
                 <h2 className="text-center font-bold text-lg mb-3 uppercase tracking-widest border-b-2 border-zinc-900 pb-1">
                   Formulário de Entrega
                 </h2>
 
                 {/* Dynamic Header Table */}
-                <div className="grid grid-cols-12 border-2 border-zinc-900 mb-4 text-[10px]">
-                  <div className="col-span-4 border-r border-b border-zinc-900 p-1.5">
+                <div className="grid grid-cols-12 border-2 border-zinc-900 mb-2 text-[9px]">
+                  <div className="col-span-4 border-r border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Data Início:</label>
                     <input 
                       type="date" 
@@ -514,7 +558,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-4 border-r border-b border-zinc-900 p-1.5">
+                  <div className="col-span-4 border-r border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Data Fim:</label>
                     <input 
                       type="date" 
@@ -524,7 +568,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-4 border-b border-zinc-900 p-1.5">
+                  <div className="col-span-4 border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Ciclo:</label>
                     <input 
                       type="text" 
@@ -534,7 +578,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-8 border-r border-b border-zinc-900 p-1.5">
+                  <div className="col-span-8 border-r border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Endereço:</label>
                     <input 
                       type="text" 
@@ -544,7 +588,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-4 border-b border-zinc-900 p-1.5">
+                  <div className="col-span-4 border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">RA:</label>
                     <input 
                       type="text" 
@@ -554,7 +598,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-6 border-r border-b border-zinc-900 p-1.5">
+                  <div className="col-span-6 border-r border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Instrutor:</label>
                     <input 
                       type="text" 
@@ -564,7 +608,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-6 border-b border-zinc-900 p-1.5">
+                  <div className="col-span-6 border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Equipamento:</label>
                     <input 
                       type="text" 
@@ -574,7 +618,7 @@ export default function App() {
                       className="w-full bg-transparent outline-none"
                     />
                   </div>
-                  <div className="col-span-12 p-1.5 flex items-center gap-4">
+                  <div className="col-span-12 p-1 flex items-center gap-4">
                     <span className="font-bold">Quantidade de alunos envolvidos na recuperação:</span>
                     <div className="flex items-center gap-2">
                       <label className="font-bold">Matutino</label>
@@ -600,22 +644,22 @@ export default function App() {
                 </div>
 
                 {/* Checklist Table Part 1 */}
-                <div className="border-2 border-zinc-900 text-[10px] mb-0">
+                <div className="border-2 border-zinc-900 text-[9px] mb-0">
                   <div className="grid grid-cols-12 bg-yellow-400 font-bold border-b border-zinc-900">
-                    <div className="col-span-8 p-2 border-r border-zinc-900 uppercase">Descrição das Atividades Executadas</div>
-                    <div className="col-span-1 p-2 border-r border-zinc-900 text-center text-blue-700">SIM</div>
-                    <div className="col-span-1 p-2 border-r border-zinc-900 text-center text-red-600">NÃO</div>
-                    <div className="col-span-2 p-2 text-center text-blue-700">NÃO SE APLICA</div>
+                    <div className="col-span-8 p-1 border-r border-zinc-900 uppercase">Descrição das Atividades Executadas</div>
+                    <div className="col-span-1 p-1 border-r border-zinc-900 text-center text-blue-700">SIM</div>
+                    <div className="col-span-1 p-1 border-r border-zinc-900 text-center text-red-600">NÃO</div>
+                    <div className="col-span-2 p-1 text-center text-blue-700">NÃO SE APLICA</div>
                   </div>
 
-                  {firstPartCategories.map((cat) => (
+                  {categories.map((cat) => (
                     <React.Fragment key={cat}>
                       <div className="bg-zinc-100 font-bold p-1 text-center border-b border-zinc-900 uppercase tracking-wider">
                         {cat}
                       </div>
                       {CHECKLIST_DATA.filter(item => item.category === cat).map((item) => (
                         <div key={item.id} className="grid grid-cols-12 border-b border-zinc-900 last:border-b-0 print:break-inside-avoid">
-                          <div className="col-span-8 p-1.5 border-r border-zinc-900 flex items-center">
+                          <div className="col-span-8 p-1 border-r border-zinc-900 flex items-center">
                             {item.text}
                           </div>
                           <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'SIM')}>
@@ -639,44 +683,12 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Checklist Table Part 2 (REGISTROS DIVERSOS) */}
-                {secondPartCategories.length > 0 && (
-                  <div className="border-2 border-zinc-900 text-[10px] mt-4 print:mt-0 print:break-before-page">
-                    {secondPartCategories.map((cat) => (
-                      <React.Fragment key={cat}>
-                        <div className="bg-zinc-100 font-bold p-1 text-center border-b border-zinc-900 uppercase tracking-wider">
-                          {cat}
-                        </div>
-                        {CHECKLIST_DATA.filter(item => item.category === cat).map((item) => (
-                          <div key={item.id} className="grid grid-cols-12 border-b border-zinc-900 last:border-b-0 print:break-inside-avoid">
-                            <div className="col-span-8 p-1.5 border-r border-zinc-900 flex items-center">
-                              {item.text}
-                            </div>
-                            <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'SIM')}>
-                              <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
-                                {formData.respostas[item.id] === 'SIM' && <div className="text-black font-bold text-[12px]">X</div>}
-                              </div>
-                            </div>
-                            <div className="col-span-1 border-r border-zinc-900 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'NÃO')}>
-                              <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
-                                {formData.respostas[item.id] === 'NÃO' && <div className="text-black font-bold text-[12px]">X</div>}
-                              </div>
-                            </div>
-                            <div className="col-span-2 flex items-center justify-center cursor-pointer hover:bg-zinc-50" onClick={() => handleResponseChange(item.id, 'NÃO SE APLICA')}>
-                              <div className="w-4 h-4 border border-zinc-900 flex items-center justify-center relative">
-                                {formData.respostas[item.id] === 'NÃO SE APLICA' && <div className="text-black font-bold text-[12px]">X</div>}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </React.Fragment>
-                    ))}
-                  </div>
-                )}
-
                 {/* Page 2 Start (Simulated in same container for easy PDF gen) */}
-                <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
+                <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor print:break-before-page">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[9px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
+                  <div className="print:block mt-8 mb-4">
+                    <HeaderLogos />
+                  </div>
                   
                   <div className="border-2 border-zinc-900 mb-4">
                     <div className="bg-blue-600 text-white font-bold p-1 text-center uppercase tracking-wider text-xs">
@@ -686,7 +698,7 @@ export default function App() {
                       name="observacoes"
                       value={formData.observacoes}
                       onChange={handleInputChange}
-                      className="w-full h-64 p-4 outline-none resize-none text-xs leading-relaxed"
+                      className="w-full h-[22rem] p-4 outline-none resize-none text-xs leading-relaxed"
                       placeholder="Espaço para anotações adicionais..."
                     />
                   </div>
@@ -696,15 +708,41 @@ export default function App() {
                     <p>Data: <span className="font-bold">{formattedDate.day}</span> de <span className="font-bold">{formattedDate.month}</span> de <span className="font-bold">{formattedDate.year}</span>.</p>
                   </div>
 
-                  {/* Signature Lines */}
-                  <div className="space-y-8 mt-10">
-                    <div className="relative">
-                      <div className="border-t border-zinc-900 w-full max-w-md mx-auto" />
-                      <p className="text-center text-xs font-bold mt-2">Assinatura fiscal da SEDET:</p>
+                  {/* Signature Lines Optimized */}
+                  <div className="space-y-16 mt-20 pb-12">
+                    <div className="relative flex flex-col items-center">
+                      <div className="h-24 w-64 flex items-end justify-center mb-1 relative overflow-visible">
+                        {signatures.find(s => s.label === 'Fiscal SEDET') && (
+                          <img 
+                            src={signatures.find(s => s.label === 'Fiscal SEDET')?.url} 
+                            alt="Assinatura Fiscal" 
+                            className="max-h-full max-w-full object-contain mix-blend-multiply" 
+                            style={{ 
+                              transform: `scale(${(signatures.find(s => s.label === 'Fiscal SEDET')?.width || 100) / 100})`,
+                              transformOrigin: 'bottom center'
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="border-t-2 border-zinc-900 w-full max-w-md mx-auto" />
+                      <p className="text-center text-sm font-bold mt-2">Assinatura do fiscal da SEDET</p>
                     </div>
-                    <div className="relative">
-                      <div className="border-t border-zinc-900 w-full max-w-md mx-auto" />
-                      <p className="text-center text-xs font-bold mt-2">Assinatura Supervisão Técnica SENAI:</p>
+                    <div className="relative flex flex-col items-center">
+                      <div className="h-24 w-64 flex items-end justify-center mb-1 relative overflow-visible">
+                        {signatures.find(s => s.label === 'Supervisor') && (
+                          <img 
+                            src={signatures.find(s => s.label === 'Supervisor')?.url} 
+                            alt="Assinatura Supervisor" 
+                            className="max-h-full max-w-full object-contain mix-blend-multiply" 
+                            style={{ 
+                              transform: `scale(${(signatures.find(s => s.label === 'Supervisor')?.width || 100) / 100})`,
+                              transformOrigin: 'bottom center'
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="border-t-2 border-zinc-900 w-full max-w-md mx-auto" />
+                      <p className="text-center text-sm font-bold mt-2">Assinatura do Supervisor</p>
                     </div>
                   </div>
 
@@ -725,71 +763,7 @@ export default function App() {
                   </footer>
                 </div>
 
-                {/* Draggable Signatures Overlay */}
-                <AnimatePresence>
-                  {signatures.map((sig) => (
-                    <motion.div
-                      key={`${sig.id}-${sig.x}-${sig.y}`}
-                      drag
-                      dragMomentum={false}
-                      onDragEnd={(_, info) => {
-                        // Atualiza a posição real no estado para que o html2canvas capture corretamente
-                        updateSignature(sig.id, {
-                          x: sig.x + (info.offset.x / zoom),
-                          y: sig.y + (info.offset.y / zoom)
-                        });
-                      }}
-                      className={cn(
-                        "absolute cursor-move group z-50 print:cursor-default print:ring-0 print:!transform-none",
-                        activeSignature === sig.id && "ring-2 ring-blue-500 ring-offset-2"
-                      )}
-                      style={{ 
-                        left: sig.x, 
-                        top: sig.y, 
-                        width: sig.width, 
-                        height: sig.height 
-                      }}
-                      onMouseDown={() => setActiveSignature(sig.id)}
-                    >
-                      <img 
-                        src={sig.url} 
-                        alt="Assinatura" 
-                        className="w-full h-full object-contain pointer-events-none"
-                      />
-                      <div className="absolute -top-6 left-0 bg-blue-600 text-white text-[8px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap no-print">
-                        {sig.label}
-                      </div>
-                      
-                      {/* Resize Handle */}
-                      <button 
-                        className="absolute -bottom-2 -right-2 bg-white border border-zinc-300 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm no-print"
-                        onMouseDown={(e) => {
-                          e.stopPropagation();
-                          const startX = e.clientX;
-                          const startWidth = sig.width;
-                          
-                          const onMouseMove = (moveEvent: MouseEvent) => {
-                            const delta = moveEvent.clientX - startX;
-                            updateSignature(sig.id, { 
-                              width: Math.max(50, startWidth + delta),
-                              height: Math.max(20, (startWidth + delta) * (sig.height / sig.width))
-                            });
-                          };
-                          
-                          const onMouseUp = () => {
-                            document.removeEventListener('mousemove', onMouseMove);
-                            document.removeEventListener('mouseup', onMouseUp);
-                          };
-                          
-                          document.addEventListener('mousemove', onMouseMove);
-                          document.addEventListener('mouseup', onMouseUp);
-                        }}
-                      >
-                        <Maximize2 size={10} className="text-zinc-600" />
-                      </button>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {/* Signatures are now rendered inline, no overlay needed */}
               </div>
             </div>
           </div>
