@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   FileText, 
-  Download, 
   Upload, 
   Trash2, 
   Move, 
@@ -15,8 +14,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { CHECKLIST_DATA, ChecklistItem } from './constants';
 import { cn } from './lib/utils';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 // --- Types ---
 
@@ -137,10 +134,8 @@ export default function App() {
   });
 
   const [signatures, setSignatures] = useState<Signature[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [activeSignature, setActiveSignature] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
-  const pdfRef = useRef<HTMLDivElement>(null);
 
   // Sync Data Fim to Footer
   const formattedDate = formData.dataFim ? (() => {
@@ -198,163 +193,6 @@ export default function App() {
     }, 300);
   };
 
-  const generatePDF = async () => {
-    console.log('Iniciando geração de PDF...');
-    if (!pdfRef.current) {
-      console.error('pdfRef.current não encontrado');
-      return;
-    }
-    setIsGenerating(true);
-    
-    try {
-      // 1. Garantir que todas as imagens dentro do elemento estão carregadas
-      const images = Array.from(pdfRef.current.querySelectorAll('img')) as HTMLImageElement[];
-      await Promise.all(images.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      }));
-
-      // 2. Preparar o elemento para captura
-      const originalTransform = pdfRef.current.style.transform;
-      const originalTransition = pdfRef.current.style.transition;
-      const originalPosition = pdfRef.current.style.position;
-      const originalZIndex = pdfRef.current.style.zIndex;
-      
-      // Forçar escala 1 para captura perfeita
-      pdfRef.current.style.setProperty('transform', 'none', 'important');
-      pdfRef.current.style.transition = 'none';
-      pdfRef.current.style.position = 'relative';
-      pdfRef.current.style.zIndex = '9999';
-
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      console.log('Capturando canvas com html2canvas...');
-      const canvas = await html2canvas(pdfRef.current, {
-        scale: 3, // Aumentado para 3x para qualidade ultra-nítida em A4
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: -window.scrollY,
-        onclone: (clonedDoc) => {
-          // 1. Remover todos os links de estilos externos que podem conter oklch e causar erro de parse
-          const links = clonedDoc.querySelectorAll('link[rel="stylesheet"]');
-          links.forEach(l => l.remove());
-
-          // 2. Remover tags de estilo que contenham oklch
-          const styles = clonedDoc.querySelectorAll('style');
-          styles.forEach(s => {
-            if (s.innerHTML.includes('oklch')) {
-              s.remove();
-            }
-          });
-
-          // 3. Injetar um estilo base simplificado para o PDF no clone
-          const style = clonedDoc.createElement('style');
-          style.innerHTML = `
-            .pdf-page {
-              width: 210mm !important;
-              background: white !important;
-              color: black !important;
-              font-family: sans-serif !important;
-              padding: 20mm !important;
-              display: block !important;
-            }
-            .pdf-page * {
-              border-color: black !important;
-              color: black !important;
-            }
-            .pdf-page .bg-yellow-400 { background-color: #FFD700 !important; -webkit-print-color-adjust: exact; }
-            .pdf-page .bg-blue-600 { background-color: #0056b3 !important; -webkit-print-color-adjust: exact; }
-            .pdf-page .bg-zinc-100 { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
-            .pdf-page .bg-zinc-800, .pdf-page .bg-black { background-color: #000000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .pdf-page .text-white { color: white !important; }
-            .pdf-page .text-blue-700 { color: #004085 !important; }
-            .pdf-page .text-red-600 { color: #c82333 !important; }
-            .pdf-page input, .pdf-page textarea { background: transparent !important; border: none !important; border-bottom: 1px solid black !important; color: black !important; }
-            .pdf-page .grid { display: flex !important; flex-wrap: wrap !important; }
-            .pdf-page .col-span-12 { width: 100% !important; flex: 0 0 100% !important; }
-            .pdf-page .col-span-8 { width: 66.66% !important; flex: 0 0 66.66% !important; }
-            .pdf-page .col-span-6 { width: 50% !important; flex: 0 0 50% !important; }
-            .pdf-page .col-span-4 { width: 33.33% !important; flex: 0 0 33.33% !important; }
-            .pdf-page .col-span-2 { width: 16.66% !important; flex: 0 0 16.66% !important; }
-            .pdf-page .col-span-1 { width: 8.33% !important; flex: 0 0 8.33% !important; }
-            .pdf-page .page-2-anchor { border-top: 1px solid #eee !important; margin-top: 20mm !important; padding-top: 10mm !important; }
-            .pdf-page .bg-black { background-color: black !important; }
-            .pdf-page .relative { position: relative !important; }
-            .pdf-page .absolute { position: absolute !important; }
-          `;
-          clonedDoc.head.appendChild(style);
-
-          const el = clonedDoc.querySelector('.pdf-page') as HTMLElement;
-          if (el) {
-            el.style.transform = 'none';
-            el.style.margin = '0';
-            el.style.boxShadow = 'none';
-            el.style.overflow = 'visible';
-            el.style.display = 'block';
-          }
-
-          // Preservar valores de inputs e textareas no clone para o html2canvas
-          clonedDoc.querySelectorAll('input, textarea').forEach((input: any) => {
-            if (input.tagName === 'TEXTAREA') {
-              input.innerHTML = input.value;
-            } else {
-              input.setAttribute('value', input.value);
-            }
-          });
-        }
-      });
-      
-      // Restaurar estilos
-      pdfRef.current.style.transform = originalTransform;
-      pdfRef.current.style.transition = originalTransition;
-      pdfRef.current.style.position = originalPosition;
-      pdfRef.current.style.zIndex = originalZIndex;
-
-      console.log('Canvas capturado. Gerando PDF...');
-      
-      const imgData = canvas.toDataURL('image/jpeg', 1.0); // Qualidade máxima
-      const pdf = new jsPDF({
-        orientation: 'p',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-      });
-      
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pdfHeight;
-      }
-
-      const fileName = `Checklist_SENAI_${formData.equipamento || 'Entrega'}.pdf`;
-      pdf.save(fileName);
-    } catch (error) {
-      console.error('Erro detalhado ao gerar PDF:', error);
-      alert('Erro ao gerar PDF. Tente novamente ou use o botão Imprimir.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   // Group items by category
   const categories = Array.from(new Set(CHECKLIST_DATA.map(item => item.category)));
 
@@ -379,15 +217,6 @@ export default function App() {
             >
               <Printer size={18} />
               Imprimir
-            </button>
-            <button
-              type="button"
-              onClick={generatePDF}
-              disabled={isGenerating}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200"
-            >
-              {isGenerating ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" /> : <Download size={18} />}
-              Gerar PDF
             </button>
           </div>
         </header>
@@ -533,21 +362,24 @@ export default function App() {
 
             <div className="overflow-x-auto pb-12 flex justify-center lg:justify-start xl:justify-center">
               <div 
-                ref={pdfRef}
-                className="pdf-page shadow-2xl origin-top print:scale-100 print:m-0 print:shadow-none transition-all duration-300"
+                className="pdf-page shrink-0 origin-top print:scale-100 print:m-0 transition-all duration-300 flex flex-col items-center gap-8 print:gap-0"
                 style={{ 
                   fontFamily: 'Inter, sans-serif',
-                  transform: `scale(${zoom})`
+                  transform: `scale(${zoom})`,
+                  width: '210mm',
+                  margin: '0 auto'
                 }}
               >
-                <HeaderLogos />
+                {/* PAGE 1 */}
+                <div className="w-[210mm] h-[297mm] bg-white p-[15mm] relative print:overflow-hidden print:break-after-page shadow-2xl print:shadow-none flex flex-col shrink-0">
+                  <HeaderLogos />
 
-                <h2 className="text-center font-bold text-lg mb-3 uppercase tracking-widest border-b-2 border-zinc-900 pb-1">
-                  Formulário de Entrega
-                </h2>
+                  <h2 className="text-center font-bold text-lg mb-3 uppercase tracking-widest border-b-2 border-zinc-900 pb-1">
+                    Formulário de Entrega
+                  </h2>
 
-                {/* Dynamic Header Table */}
-                <div className="grid grid-cols-12 border-2 border-zinc-900 mb-2 text-[9px]">
+                  {/* Dynamic Header Table */}
+                  <div className="grid grid-cols-12 border-2 border-zinc-900 mb-2 text-[9px] shrink-0">
                   <div className="col-span-4 border-r border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Data Início:</label>
                     <input 
@@ -683,27 +515,30 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Page 2 Start (Simulated in same container for easy PDF gen) */}
-                <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 relative print:border-none print:mt-0 print:pt-0 page-2-anchor print:break-before-page">
+                </div>
+
+                {/* PAGE 2 */}
+                <div className="w-[210mm] h-[297mm] bg-white p-[15mm] border-t-2 border-dashed border-zinc-300 print:border-none relative print:overflow-hidden print:break-before-page shadow-2xl print:shadow-none flex flex-col shrink-0 mt-8 print:mt-0">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[9px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
-                  <div className="print:block mt-8 mb-4">
+                  <div className="shrink-0 mb-4 mt-8 print:mt-0">
                     <HeaderLogos />
                   </div>
                   
-                  <div className="border-2 border-zinc-900 mb-4">
-                    <div className="bg-blue-600 text-white font-bold p-1 text-center uppercase tracking-wider text-xs">
+                  <div className="border-2 border-zinc-900 mb-4 flex-1 flex flex-col min-h-0">
+                    <div className="bg-blue-600 text-white font-bold p-1 text-center uppercase tracking-wider text-xs shrink-0">
                       Observações
                     </div>
                     <textarea 
                       name="observacoes"
                       value={formData.observacoes}
                       onChange={handleInputChange}
-                      className="w-full h-[22rem] p-4 outline-none resize-none text-xs leading-relaxed"
+                      className="w-full flex-1 p-4 outline-none resize-none text-xs leading-relaxed overflow-hidden bg-transparent"
                       placeholder="Espaço para anotações adicionais..."
                     />
                   </div>
 
-                  {/* Footer Data */}
+                  <div className="shrink-0">
+                    {/* Footer Data */}
                   <div className="flex justify-center mb-8 text-sm">
                     <p>Data: <span className="font-bold">{formattedDate.day}</span> de <span className="font-bold">{formattedDate.month}</span> de <span className="font-bold">{formattedDate.year}</span>.</p>
                   </div>
@@ -761,6 +596,7 @@ export default function App() {
                       <p>sistemafibra.org.br/senai</p>
                     </div>
                   </footer>
+                  </div>
                 </div>
 
                 {/* Signatures are now rendered inline, no overlay needed */}
@@ -769,21 +605,6 @@ export default function App() {
           </div>
         </main>
       </div>
-
-      {/* Toast / Feedback */}
-      <AnimatePresence>
-        {isGenerating && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-zinc-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 z-[100] no-print"
-          >
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white" />
-            <span className="font-medium">Gerando documento A4...</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
