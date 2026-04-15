@@ -379,7 +379,7 @@ export default function App() {
                   </h2>
 
                   {/* Dynamic Header Table */}
-                  <div className="grid grid-cols-12 border-2 border-zinc-900 mb-2 text-[9px] shrink-0">
+                  <div className="grid grid-cols-12 border-2 border-zinc-900 mb-2 text-[9px] shrink-0 overflow-hidden">
                   <div className="col-span-4 border-r border-b border-zinc-900 p-1">
                     <label className="block font-bold mb-0">Data Início:</label>
                     <input 
@@ -476,7 +476,7 @@ export default function App() {
                 </div>
 
                 {/* Checklist Table Part 1 */}
-                <div className="border-2 border-zinc-900 text-[9px] mb-0">
+                <div className="border-2 border-zinc-900 text-[9px] mb-0 overflow-hidden">
                   <div className="grid grid-cols-12 bg-yellow-400 font-bold border-b border-zinc-900">
                     <div className="col-span-8 p-1 border-r border-zinc-900 uppercase">Descrição das Atividades Executadas</div>
                     <div className="col-span-1 p-1 border-r border-zinc-900 text-center text-blue-700">SIM</div>
