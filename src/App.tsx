@@ -371,7 +371,7 @@ export default function App() {
                 }}
               >
                 {/* PAGE 1 */}
-                <div className="w-[210mm] h-[297mm] bg-white p-[15mm] relative print:overflow-hidden print:break-after-page shadow-2xl print:shadow-none flex flex-col shrink-0">
+                <div className="w-[210mm] h-[297mm] print:h-[290mm] bg-white p-[15mm] relative print:overflow-hidden shadow-2xl print:shadow-none flex flex-col shrink-0">
                   <HeaderLogos />
 
                   <h2 className="text-center font-bold text-lg mb-3 uppercase tracking-widest border-b-2 border-zinc-900 pb-1">
@@ -518,7 +518,7 @@ export default function App() {
                 </div>
 
                 {/* PAGE 2 */}
-                <div className="w-[210mm] h-[297mm] bg-white p-[15mm] border-t-2 border-dashed border-zinc-300 print:border-none relative print:overflow-hidden print:break-before-page shadow-2xl print:shadow-none flex flex-col shrink-0 mt-8 print:mt-0">
+                <div className="w-[210mm] h-[297mm] print:h-[290mm] bg-white p-[15mm] border-t-2 border-dashed border-zinc-300 print:border-none relative print:overflow-hidden print:break-before-page shadow-2xl print:shadow-none flex flex-col shrink-0 mt-8 print:mt-0">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[9px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
                   <div className="shrink-0 mb-4 mt-8 print:mt-0">
                     <HeaderLogos />
