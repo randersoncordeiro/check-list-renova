@@ -371,7 +371,7 @@ export default function App() {
                 }}
               >
                 {/* PAGE 1 */}
-                <div className="w-[210mm] h-[297mm] print:h-[260mm] print:max-h-[260mm] bg-white p-[15mm] relative print:overflow-hidden shadow-2xl print:shadow-none flex flex-col shrink-0 print:break-after-page">
+                <div className="w-[210mm] h-[297mm] print:h-[275mm] print:max-h-[275mm] bg-white p-[15mm] print:p-[10mm] relative print:overflow-hidden shadow-2xl print:shadow-none flex flex-col shrink-0 print:break-after-page">
                   <HeaderLogos />
 
                   <h2 className="text-center font-bold text-lg mb-3 uppercase tracking-widest border-b-2 border-zinc-900 pb-1">
@@ -518,7 +518,7 @@ export default function App() {
                 </div>
 
                 {/* PAGE 2 */}
-                <div className="w-[210mm] h-[297mm] print:h-[260mm] print:max-h-[260mm] bg-white p-[15mm] border-t-2 border-dashed border-zinc-300 print:border-none relative print:overflow-hidden shadow-2xl print:shadow-none flex flex-col shrink-0 mt-8 print:mt-0">
+                <div className="w-[210mm] h-[297mm] print:h-[275mm] print:max-h-[275mm] bg-white p-[15mm] print:p-[10mm] border-t-2 border-dashed border-zinc-300 print:border-none relative print:overflow-hidden shadow-2xl print:shadow-none flex flex-col shrink-0 mt-8 print:mt-0">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[9px] text-zinc-400 font-mono no-print">PÁGINA 2</div>
                   <div className="shrink-0 mb-4 mt-8 print:mt-0">
                     <HeaderLogos />
@@ -544,7 +544,7 @@ export default function App() {
                   </div>
 
                   {/* Signature Lines Optimized */}
-                  <div className="space-y-16 mt-20 pb-12">
+                  <div className="space-y-12 mt-10 print:mt-6 pb-6 print:pb-2">
                     <div className="relative flex flex-col items-center">
                       <div className="h-24 w-64 flex items-end justify-center mb-1 relative overflow-visible">
                         {signatures.find(s => s.label === 'Fiscal SEDET') && (
